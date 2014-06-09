@@ -4,22 +4,17 @@
 #include <QTime>
 #include <QScreen>
 #include <QPixmap>
-
 #include <QGraphicsScene>
-#include <QGraphicsTextItem>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsColorizeEffect>
-
-#include <QList>
 #include <QTimer>
 
-// Количество пузырей на экране
-const int BUBBLES_AMOUNT = 12;
-const int EXPECTED_FPS   = 30;
+const int BUBBLES_AMOUNT = 12; // Количество пузырей на экране
+const int EXPECTED_FPS   = 30; // Ожидаемое количество кадров в секунду
 
 int main(int argc, char *argv[])
 {
+    // Инициализируем генератор псевдослучайных чисел
     qsrand(QTime::currentTime().msec());
+
     QApplication app(argc, argv);
 
     BubbleItem::setBubblePixmap(QPixmap(":/images/bubble.png"));
@@ -28,7 +23,6 @@ int main(int argc, char *argv[])
     QScreen *screen = QApplication::primaryScreen();
     if (!screen)
         return -1;
-
     QPixmap screenshot = screen->grabWindow(0);
 
     // QGraphicsScene - контейнер для создаваемых нами
@@ -38,18 +32,18 @@ int main(int argc, char *argv[])
 
     // Наполняем сцену непересекающимися элементами
     {
-        QList<BubbleItem*> bubbles;
+        const int left   = scene.sceneRect().left()   + BubbleItem::RADIUS;
+        const int top    = scene.sceneRect().top()    + BubbleItem::RADIUS;
+        const int right  = scene.sceneRect().right()  - BubbleItem::RADIUS;
+        const int bottom = scene.sceneRect().bottom() - BubbleItem::RADIUS;
 
         for (int i = 0; i < BUBBLES_AMOUNT; ++i)
         {
             BubbleItem *bubble = new BubbleItem();
             scene.addItem(bubble);
 
-            const int left   = scene.sceneRect().left()   + BubbleItem::RADIUS;
-            const int top    = scene.sceneRect().top()    + BubbleItem::RADIUS;
-            const int right  = scene.sceneRect().right()  - BubbleItem::RADIUS;
-            const int bottom = scene.sceneRect().bottom() - BubbleItem::RADIUS;
-
+            // Будем давать пузырю случайные координаты до тез пор
+            // пока он не прекратит пересекаться с другими пузырями
             do
             {
                 bubble->setPos(
